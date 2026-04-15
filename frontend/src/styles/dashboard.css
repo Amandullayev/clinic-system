@@ -1,0 +1,56 @@
+.dashboard-title { font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 0; }
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.dashboard-date { color: var(--text-secondary); font-size: 14px; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: var(--card-bg); border-radius: 12px; padding: 24px; box-shadow: var(--shadow); border: 1px solid var(--border); border-left: 4px solid #0D7377; }
+.stat-card.blue   { border-left-color: #2563EB; }
+.stat-card.green  { border-left-color: #16A34A; }
+.stat-card.orange { border-left-color: #F59E0B; }
+.stat-label { font-size: 13px; color: var(--text-secondary); margin: 0 0 8px 0; }
+.stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0; }
+.stat-sub { font-size: 12px; color: var(--text-secondary); margin: 0; }
+
+.middle-grid { display: grid; grid-template-columns: 1fr 320px; gap: 16px; margin-bottom: 24px; }
+.right-column { display: flex; flex-direction: column; gap: 16px; }
+
+.recent-card { background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.recent-card h3 { font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 0 0 16px 0; }
+
+.payment-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.payment-table th { text-align: left; padding: 8px 0; font-weight: 500; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+.payment-table th:last-child, .payment-table td:last-child { text-align: right; }
+.payment-table td { padding: 10px 0; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+.payment-service { color: var(--text-secondary); }
+.payment-amount { font-weight: 600; color: #16A34A; }
+.payment-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
+.badge-paid     { background: #DCFCE7; color: #16A34A; }
+.badge-refunded { background: #FEF2F2; color: #EF4444; }
+.badge-pending  { background: #FFF7ED; color: #F59E0B; }
+
+.today-appointment { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+.appt-time { font-size: 13px; color: var(--text-secondary); min-width: 40px; padding-top: 2px; }
+.appt-patient { font-size: 14px; font-weight: 500; margin: 0; color: var(--text-primary); }
+.appt-doctor { font-size: 12px; color: var(--text-secondary); margin: 0; }
+.appt-service { font-size: 12px; color: var(--text-secondary); margin: 0; opacity: 0.7; }
+
+.medication-item { margin-bottom: 12px; }
+.medication-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+.medication-name { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+.medication-qty { font-size: 13px; color: #EF4444; font-weight: 600; }
+.medication-min { font-size: 12px; color: var(--text-secondary); margin: 0; }
+
+.doctors-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 12px; }
+.doctor-status-card { border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: var(--card-bg); }
+.doctor-status-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.doctor-avatar { width: 40px; height: 40px; border-radius: 50%; background: #0D7377; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+.doctor-status-name { font-size: 14px; font-weight: 600; margin: 0; color: var(--text-primary); }
+.doctor-status-spec { font-size: 12px; color: var(--text-secondary); margin: 0; }
+
+.status-badge-doctor { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
+.badge-active  { background: #DCFCE7; color: #16A34A; }
+.badge-busy    { background: #FFF7ED; color: #F59E0B; }
+.badge-offline { background: #F1F5F9; color: #94A3B8; }
+
+.loading { text-align: center; padding: 40px; color: var(--text-secondary); }
+.empty-text { text-align: center; padding: 20px; color: var(--text-secondary); font-size: 14px; }

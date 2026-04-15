@@ -1,0 +1,128 @@
+/* Orqa fon (bir oz boyitildi) */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+
+  background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
+}
+
+/* 🔥 CARD (kattalashtirildi va premium style) */
+.login-card {
+  width: 420px; /* oldin 360 edi */
+  background: rgba(187, 187, 187, 0.95);
+  padding: 50px 40px;
+  border-radius: 20px;
+
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+
+  backdrop-filter: blur(12px);
+  transition: 0.3s;
+}
+
+.login-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Title */
+.login-title {
+  text-align: center;
+  color: #0d7377;
+  margin-bottom: 8px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+/* Subtitle */
+.login-subtitle {
+  text-align: center;
+  color: #64748b;
+  margin-bottom: 35px;
+  font-size: 14px;
+}
+
+/* 🔥 INPUT */
+.login-input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: 0.25s;
+  background: #f8fafc;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: #14b8a6;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
+}
+
+/* Error */
+.login-error {
+  color: #ef4444;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+/* 🔥 BUTTON (premium gradient + effect) */
+.login-button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #0d7377, #14b8a6);
+  color: rgb(255, 255, 255);
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* Hover effect */
+.login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(20, 184, 166, 0.4);
+}
+
+/* Active bosilganda */
+.login-button:active {
+  transform: scale(0.98);
+}
+
+/* Disabled */
+.login-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Password wrapper */
+.password-wrapper {
+  position: relative;
+}
+
+/* input ichiga joylash */
+.password-input {
+  padding-right: 45px;
+}
+
+/* 👁 icon */
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #64748b;
+  transition: 0.2s;
+}
+
+.toggle-password:hover {
+  color: #0d7377;
+}

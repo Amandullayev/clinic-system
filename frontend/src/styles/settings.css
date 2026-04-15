@@ -1,0 +1,23 @@
+.settings-title { font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 24px; }
+
+.settings-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.settings-card { background: var(--card-bg); border-radius: 12px; padding: 28px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.settings-card h3 { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+
+.profile-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.profile-label { font-size: 13px; color: var(--text-secondary); }
+.profile-value { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+
+.role-badge { background: #1e293b; color: #16A34A; padding: 4px 10px; border-radius: 20px; font-size: 12px; }
+
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+.form-group input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none; background: var(--input-bg); color: var(--text-primary); }
+.form-group input:focus { border-color: #0D7377; }
+
+.btn-save-password { width: 100%; padding: 12px; background-color: #0D7377; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; margin-top: 8px; }
+.btn-save-password:hover { background-color: #0a5f63; }
+.btn-save-password:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.settings-error { color: #EF4444; font-size: 13px; margin-bottom: 12px; }
+.settings-success { color: #16A34A; font-size: 13px; margin-bottom: 12px; }

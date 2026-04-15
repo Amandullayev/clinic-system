@@ -1,0 +1,139 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #EDF2F7;
+  --card-bg: #F7FAFC;
+  --text-primary: #1A202C;
+  --text-secondary: #4A5568;
+  --border: #CBD5E0;
+  --header-bg: #ffffff;
+  --sidebar-bg: #0F172A;
+  --input-bg: #ffffff;
+  --hover-bg: #E2E8F0;
+  --thead-bg: #F1F5F9;
+  --shadow: rgba(0,0,0,0.08);
+}
+
+[data-theme="dark"] {
+  --bg: #0F172A;
+  --card-bg: #1E293B;
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --border: #334155;
+  --header-bg: #1E293B;
+  --sidebar-bg: #020617;
+  --input-bg: #293548;
+  --hover-bg: #293548;
+  --thead-bg: #162032;
+  --shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+body {
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  background-color: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+p { margin: 0; }
+
+/* ===== DARK MODE OVERRIDES ===== */
+
+[data-theme="dark"] .table-wrapper {
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+}
+
+[data-theme="dark"] thead {
+  background-color: var(--thead-bg);
+}
+
+[data-theme="dark"] thead th {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] tbody tr {
+  border-top: 1px solid var(--border);
+}
+
+[data-theme="dark"] tbody tr:hover {
+  background-color: var(--hover-bg);
+}
+
+[data-theme="dark"] tbody td {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .recent-card,
+[data-theme="dark"] .chart-card,
+[data-theme="dark"] .settings-card {
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+}
+
+[data-theme="dark"] .stat-label,
+[data-theme="dark"] .recent-sub,
+[data-theme="dark"] .profile-label,
+[data-theme="dark"] .stat-value,
+[data-theme="dark"] .recent-name,
+[data-theme="dark"] .page-header h2,
+[data-theme="dark"] .reports-title,
+[data-theme="dark"] .settings-title,
+[data-theme="dark"] .dashboard-title,
+[data-theme="dark"] .recent-card h3,
+[data-theme="dark"] .chart-card h3,
+[data-theme="dark"] .settings-card h3 {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .profile-value {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .profile-row {
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="dark"] .settings-card h3 {
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="dark"] .modal {
+  background: var(--card-bg);
+}
+
+[data-theme="dark"] .modal h3 {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-group label {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group select {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn-cancel {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .recent-item {
+  border-bottom: 1px solid var(--border);
+}

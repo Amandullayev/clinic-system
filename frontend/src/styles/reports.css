@@ -1,0 +1,14 @@
+.reports-title { font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 24px; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+.stat-card { background: var(--card-bg); border-radius: 12px; padding: 24px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.stat-card.green { border-left: 4px solid #16A34A; }
+.stat-card.red   { border-left: 4px solid #EF4444; }
+.stat-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
+.stat-value { font-size: 26px; font-weight: 700; color: var(--text-primary); }
+
+.charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.chart-card { background: var(--card-bg); border-radius: 12px; padding: 24px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.chart-card h3 { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px; }
+
+.loading { text-align: center; padding: 40px; color: var(--text-secondary); }
