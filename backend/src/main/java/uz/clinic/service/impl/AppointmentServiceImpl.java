@@ -25,7 +25,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final DoctorRepository doctorRepository;
     private final MedicalServiceRepository medicalServiceRepository;
     private final AppointmentMapper appointmentMapper;
-    private final UserRepository userRepository;
+
     @Override
     public AppointmentResponse getById(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
@@ -35,8 +35,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public ApiResponse getAppointmentsByPatientEmail(String email) {
-        User patient = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Foydalanuvchi topilmadi"));
+        Patient patient = patientRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Bemor topilmadi"));
         List<Appointment> appointments = appointmentRepository.findByPatient(patient);
         List<AppointmentResponse> responses = appointments.stream()
                 .map(appointmentMapper::toResponse)
@@ -109,9 +109,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<AppointmentResponse> getAll() {
-        return appointmentRepository.findAll()
+        return appointmentRepository.findAllByStatusNot(AppointmentStatus.CANCELLED)
                 .stream()
-                .filter(a -> a.getStatus() != AppointmentStatus.CANCELLED)
                 .map(appointmentMapper::toResponse)
                 .toList();
     }

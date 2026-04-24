@@ -1,4 +1,4 @@
-package uz.clinic.controller.patient;
+package uz.clinic.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import uz.clinic.common.ApiResponse;
 import uz.clinic.dto.request.AppointmentRequest;
 import uz.clinic.dto.response.AppointmentResponse;
-import uz.clinic.exception.ResourceNotFoundException;
-import uz.clinic.service.patient.PatientPanelService;
+import uz.clinic.service.PatientPanelService;
 
 import java.util.List;
 
@@ -21,7 +20,6 @@ import java.util.List;
 public class PatientPanelController {
 
     private final PatientPanelService patientPanelService;
-
     @GetMapping("/my-appointments")
     public ResponseEntity<ApiResponse<List<AppointmentResponse>>> getMyAppointments(
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -44,5 +42,13 @@ public class PatientPanelController {
             @AuthenticationPrincipal UserDetails userDetails) {
         patientPanelService.cancelAppointment(id, userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.ok("Uchrashuv bekor qilindi", null));
+    }
+
+    @GetMapping("/doctors/{doctorId}/available-slots")
+    public ResponseEntity<ApiResponse<List<String>>> getAvailableSlots(
+            @PathVariable Long doctorId,
+            @RequestParam String date) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                patientPanelService.getAvailableSlots(doctorId, date)));
     }
 }

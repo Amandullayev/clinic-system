@@ -4,6 +4,8 @@ package uz.clinic.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uz.clinic.dto.response.DashboardResponse;
+import uz.clinic.dto.response.WeekdayVisitDto;
+import uz.clinic.enums.AppointmentStatus;
 import uz.clinic.mapper.AppointmentMapper;
 import uz.clinic.mapper.DoctorMapper;
 import uz.clinic.mapper.MedicationMapper;
@@ -15,6 +17,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -44,11 +47,12 @@ public class DashboardServiceImpl implements DashboardService {
 
         // Statistika
         response.setTodayPatients(
-                appointmentRepository.findTodayAppointments(todayStart, todayEnd).size()
+                (int) appointmentRepository.countTodayAppointments(todayStart, todayEnd)
         );
         response.setPendingAppointments(
-                appointmentRepository.findAllByStatus(uz.clinic.enums.AppointmentStatus.PENDING).size()
+                (int) appointmentRepository.countByStatus(AppointmentStatus.PENDING)
         );
+
         response.setNewPatientsToday(
                 patientRepository.countNewPatients(todayStart, todayEnd)
         );
@@ -87,6 +91,18 @@ public class DashboardServiceImpl implements DashboardService {
                         .map(doctorMapper::toResponse)
                         .toList()
         );
+
+        // Haftalik statistika
+        LocalDateTime weekStart = LocalDate.now().with(java.time.DayOfWeek.MONDAY).atStartOfDay();
+        List<WeekdayVisitDto> weekly = new java.util.ArrayList<>();
+        String[] days = {"Dush", "Sesh", "Chor", "Pay", "Juma", "Shan", "Yak"};
+        for (int i = 0; i < 7; i++) {
+            LocalDateTime start = weekStart.plusDays(i);
+            LocalDateTime end = start.plusDays(1);
+            long count = appointmentRepository.countTodayAppointments(start, end);
+            weekly.add(new WeekdayVisitDto(days[i], count));
+        }
+        response.setWeeklyVisits(weekly);
 
         return response;
     }

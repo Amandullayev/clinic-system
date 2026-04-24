@@ -27,6 +27,11 @@ public class Appointment {
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
+    private String diagnosis;
+
+    @Column(columnDefinition = "TEXT")
+    private String prescription;
+
     @ManyToOne
     @JoinColumn(name = "medical_service_id", nullable = false)
     private MedicalService medicalService;

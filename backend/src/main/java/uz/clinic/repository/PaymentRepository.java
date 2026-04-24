@@ -28,4 +28,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findPaidBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
     boolean existsByAppointmentId(Long appointmentId);
+
+    @Query("SELECT p FROM Payment p JOIN p.appointment a WHERE a.patient.id = :patientId ORDER BY p.createdAt DESC")
+    List<Payment> findByPatientId(@Param("patientId") Long patientId);
 }

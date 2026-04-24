@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import uz.clinic.common.ApiResponse;
 import uz.clinic.dto.request.PatientRequest;
+import uz.clinic.dto.response.PatientDetailsResponse;
 import uz.clinic.dto.response.PatientResponse;
 import uz.clinic.service.PatientService;
 
@@ -49,5 +50,11 @@ public class PatientController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         patientService.delete(id);
         return ResponseEntity.ok(ApiResponse.ok("Bemor o'chirildi", null));
+    }
+
+    @GetMapping("/{id}/details")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN', 'RECEPTIONIST', 'DOCTOR')")
+    public ResponseEntity<ApiResponse<PatientDetailsResponse>> getDetails(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(patientService.getDetails(id)));
     }
 }

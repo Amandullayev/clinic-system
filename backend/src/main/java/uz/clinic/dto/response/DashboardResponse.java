@@ -25,4 +25,6 @@ public class DashboardResponse {
 
     // Shifokorlar holati
     private List<DoctorResponse> doctors;
+
+    private List<WeekdayVisitDto> weeklyVisits;
 }

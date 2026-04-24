@@ -16,7 +16,10 @@ public class AppointmentMapper {
         response.setAppointmentTime(appointment.getAppointmentTime());
         response.setStatus(appointment.getStatus());
         response.setNotes(appointment.getNotes());
+        response.setDiagnosis(appointment.getDiagnosis());
+        response.setPrescription(appointment.getPrescription());
         response.setCreatedAt(appointment.getCreatedAt());
+
         return response;
     }
 }

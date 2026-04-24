@@ -1,8 +1,11 @@
 package uz.clinic.entity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
+import uz.clinic.enums.MedicationUnit;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,13 +24,20 @@ public class Medication {
     @Column(nullable = false)
     private String name;
 
+    private String category;
+
     @Column(nullable = false)
     private Integer quantity;
 
     @Column(nullable = false)
     private Integer minQuantity;
 
-    private String unit;  // "dona", "ml", "mg" va h.k.
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MedicationUnit unit;
+
+    @Column(nullable = false)
+    private BigDecimal price;
 
     @Column(nullable = false)
     private boolean active = true;
