@@ -1,4 +1,4 @@
-package uz.clinic.controller.doctor;
+package uz.clinic.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -7,9 +7,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import uz.clinic.common.ApiResponse;
+import uz.clinic.dto.request.DiagnoseRequest;
 import uz.clinic.dto.response.AppointmentResponse;
 import uz.clinic.dto.response.PatientResponse;
-import uz.clinic.service.doctor.DoctorPanelService;
+import uz.clinic.service.DoctorPanelService;
 
 import java.util.List;
 
@@ -43,5 +44,15 @@ public class DoctorPanelController {
         return ResponseEntity.ok(ApiResponse.ok(
                 "Status yangilandi",
                 doctorPanelService.updateAppointmentStatus(id, status, userDetails.getUsername())));
+    }
+
+    @PatchMapping("/appointments/{id}/diagnose")
+    public ResponseEntity<ApiResponse<AppointmentResponse>> writeDiagnosis(
+            @PathVariable Long id,
+            @RequestBody DiagnoseRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                "Tashxis saqlandi",
+                doctorPanelService.writeDiagnosis(id, request, userDetails.getUsername())));
     }
 }

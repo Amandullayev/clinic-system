@@ -22,7 +22,7 @@ public class ClinicSettingsServiceImpl implements ClinicSettingsService {
                     // Agar hali yozilmagan bo'lsa, default qaytaradi
                     ClinicSettings defaults = new ClinicSettings();
                     defaults.setId(1L);
-                    defaults.setClinicName("CLINIQ Medical Center");
+                    defaults.setClinicName("CLINIC Medical Center");
                     defaults.setPhone("+998 71 123 45 67");
                     defaults.setEmail("info@cliniq.uz");
                     defaults.setWebsite("www.cliniq.uz");

@@ -45,6 +45,10 @@ public class Patient {
     @Column(nullable = false)
     private boolean active = true;
 
+    @OneToOne
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();

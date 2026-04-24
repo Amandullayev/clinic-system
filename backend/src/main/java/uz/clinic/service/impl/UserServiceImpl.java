@@ -8,6 +8,7 @@ import uz.clinic.dto.request.UserCreateRequest;
 import uz.clinic.dto.request.UserUpdateRequest;
 import uz.clinic.dto.response.UserResponse;
 import uz.clinic.entity.User;
+import uz.clinic.exception.BadRequestException;
 import uz.clinic.exception.ResourceNotFoundException;
 import uz.clinic.repository.UserRepository;
 import uz.clinic.service.UserService;
@@ -25,7 +26,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponse> getAll() {
         return userRepository.findAll()
-                .stream().map(this::toResponse).collect(Collectors.toList());
+                .stream()
+                .filter(u -> !u.isDeleted())
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -36,7 +40,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse create(UserCreateRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Bu email allaqachon mavjud");
+            throw new BadRequestException("Bu email allaqachon mavjud");
         }
         User user = new User();
         user.setFullName(request.getFullName());
@@ -60,7 +64,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(Long id) {
         User user = findById(id);
-        userRepository.delete(user);
+        user.setDeleted(true);
+        userRepository.save(user);
     }
 
     @Override

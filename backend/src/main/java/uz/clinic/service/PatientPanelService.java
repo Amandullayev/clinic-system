@@ -1,4 +1,4 @@
-package uz.clinic.service.patient;
+package uz.clinic.service;
 
 import uz.clinic.dto.request.AppointmentRequest;
 import uz.clinic.dto.response.AppointmentResponse;
@@ -12,4 +12,6 @@ public interface PatientPanelService {
     AppointmentResponse bookAppointment(AppointmentRequest request, String email);
 
     void cancelAppointment(Long appointmentId, String email);
+
+    List<String> getAvailableSlots(Long doctorId, String date);
 }

@@ -46,7 +46,11 @@ public class MedicationServiceImpl implements MedicationService {
     @Override
     public MedicationResponse create(MedicationRequest request) {
         Medication medication = medicationMapper.toEntity(request);
-        return medicationMapper.toResponse(medicationRepository.save(medication));
+        medication.setActive(true);
+        Medication saved = medicationRepository.save(medication);
+        MedicationResponse response = medicationMapper.toResponse(saved);
+        response.setLowStock(saved.getQuantity() < saved.getMinQuantity());
+        return response;
     }
 
     @Override

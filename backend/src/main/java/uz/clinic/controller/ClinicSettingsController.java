@@ -16,13 +16,13 @@ public class ClinicSettingsController {
 
     private final ClinicSettingsService clinicSettingsService;
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping
     public ResponseEntity<ApiResponse<ClinicSettingsResponse>> get() {
         return ResponseEntity.ok(ApiResponse.ok(clinicSettingsService.get()));
     }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PutMapping
     public ResponseEntity<ApiResponse<ClinicSettingsResponse>> update(
             @RequestBody ClinicSettingsRequest request) {

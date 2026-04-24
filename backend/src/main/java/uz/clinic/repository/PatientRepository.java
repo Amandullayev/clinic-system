@@ -4,14 +4,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import uz.clinic.entity.Patient;
+import uz.clinic.entity.User;
+import java.util.Optional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+
 
 public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     Optional<Patient> findByPhone(String phone);
+    Optional<Patient> findByUser_Email(String email);
 
     boolean existsByPhone(String phone);
 
@@ -22,4 +25,7 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     List<Patient> findByFullNameContainingIgnoreCase(String fullName);
 
+    Optional<Patient> findByUser(User user);
+
+    boolean existsByEmail(String email);
 }

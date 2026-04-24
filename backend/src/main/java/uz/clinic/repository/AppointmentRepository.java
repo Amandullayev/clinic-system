@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import uz.clinic.entity.Appointment;
-import uz.clinic.entity.User;
+import uz.clinic.entity.Patient;
 import uz.clinic.enums.AppointmentStatus;
 
 import java.time.LocalDateTime;
@@ -15,9 +15,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     boolean existsByDoctorIdAndAppointmentTimeAndIdNot(Long doctorId, LocalDateTime appointmentTime, Long id);
 
-    List<Appointment> findByPatient(User patient);
+    List<Appointment> findByPatient(Patient patient);
 
     List<Appointment> findAllByDoctorId(Long doctorId);
+
+    List<Appointment> findAllByStatusNot(AppointmentStatus status);
 
     List<Appointment> findAllByPatientId(Long patientId);
 
@@ -39,4 +41,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     boolean existsByDoctorIdAndAppointmentTime(
             Long doctorId, LocalDateTime appointmentTime);
+
+    @Query("SELECT DISTINCT a.patient FROM Appointment a WHERE a.doctor.id = :doctorId")
+    List<Patient> findDistinctPatientsByDoctorId(@Param("doctorId") Long doctorId);
+
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.appointmentTime >= :start AND a.appointmentTime < :end")
+    long countTodayAppointments(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    long countByStatus(AppointmentStatus status);
+
+    boolean existsByDoctorIdAndAppointmentTimeBetweenAndStatusNot(
+            Long doctorId,
+            LocalDateTime from,
+            LocalDateTime to,
+            AppointmentStatus status);
+
+    List<Appointment> findByDoctorIdAndAppointmentTimeBetweenAndStatusNot(
+            Long doctorId, LocalDateTime start, LocalDateTime end, AppointmentStatus status);
 }
