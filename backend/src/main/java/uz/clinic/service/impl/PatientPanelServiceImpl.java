@@ -68,9 +68,9 @@ public class PatientPanelServiceImpl implements PatientPanelService {
         LocalDateTime apptTime = request.getAppointmentTime();
 
         // 1. Ish kunini tekshirish
-        if (doctor.getWorkingDays() != null && !doctor.getWorkingDays().isBlank()) {
-            int dayValue = apptTime.getDayOfWeek().getValue(); // 1=Dush ... 7=Yak
-            boolean validDay = Arrays.stream(doctor.getWorkingDays().split(","))
+        if (doctor.getWorkingDays() != null && !doctor.getWorkingDays().isEmpty()) {
+            int dayValue = apptTime.getDayOfWeek().getValue();
+            boolean validDay = doctor.getWorkingDays().stream()
                     .map(String::trim)
                     .anyMatch(d -> {
                         try { return Integer.parseInt(d) == dayValue; }
@@ -134,9 +134,9 @@ public class PatientPanelServiceImpl implements PatientPanelService {
                 .orElseThrow(() -> new ResourceNotFoundException("Shifokor topilmadi"));
         LocalDate date = LocalDate.parse(dateStr);
         // Ish kuni tekshiruvi
-        if (doctor.getWorkingDays() != null && !doctor.getWorkingDays().isBlank()) {
+        if (doctor.getWorkingDays() != null && !doctor.getWorkingDays().isEmpty()) {
             int dayValue = date.getDayOfWeek().getValue();
-            boolean isWorkingDay = Arrays.stream(doctor.getWorkingDays().split(","))
+            boolean isWorkingDay = doctor.getWorkingDays().stream()
                     .map(String::trim)
                     .anyMatch(d -> {
                         try { return Integer.parseInt(d) == dayValue; }

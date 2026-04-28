@@ -95,6 +95,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setMedicalService(service);
         appointment.setAppointmentTime(request.getAppointmentTime());
         appointment.setNotes(request.getNotes());
+        patient.setLastVisitDate(appointment.getAppointmentTime().toLocalDate());
+        patientRepository.save(patient);
 
         return appointmentMapper.toResponse(appointmentRepository.save(appointment));
     }
