@@ -13,6 +13,8 @@ import uz.clinic.repository.DoctorRepository;
 import uz.clinic.repository.PatientRepository;
 import uz.clinic.repository.UserRepository;
 
+import java.util.List;
+
 
 @Component
 @RequiredArgsConstructor
@@ -76,7 +78,7 @@ public class DataInitializer implements CommandLineRunner {
                             .active(true)
                             .status(DoctorStatus.ACTIVE)
                             .experienceYears(5)
-                            .workingDays("Dush-Juma")
+                            .workingDays(List.of("1", "2", "3", "4", "5"))
                             .workStartTime("09:00")
                             .workEndTime("18:00")
                             .build());

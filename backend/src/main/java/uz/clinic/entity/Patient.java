@@ -40,7 +40,10 @@ public class Patient {
 
     private LocalDate lastVisitDate;
 
-    private Integer totalVisits = 0;
+    @org.hibernate.annotations.Formula(
+            "(SELECT COUNT(a.id) FROM appointments a WHERE a.patient_id = id AND a.status = 'COMPLETED')"
+    )
+    private Integer totalVisits;
 
     @Column(nullable = false)
     private boolean active = true;

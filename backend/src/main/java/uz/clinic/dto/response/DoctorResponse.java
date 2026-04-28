@@ -3,6 +3,9 @@ package uz.clinic.dto.response;
 import lombok.Data;
 import uz.clinic.enums.DoctorStatus;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 public class DoctorResponse {
 
@@ -13,7 +16,7 @@ public class DoctorResponse {
     private String phone;
     private DoctorStatus status;
     private Double rating;
-    private String workingDays;
+    private List<String> workingDays = new ArrayList<>();
     private String workStartTime;
     private String workEndTime;
     private String licenseNumber;

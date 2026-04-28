@@ -5,6 +5,8 @@ import lombok.*;
 import uz.clinic.enums.DoctorStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "doctors")
@@ -40,7 +42,11 @@ public class Doctor {
 
     private Double rating;
 
-    private String workingDays;      // masalan: "Dush-Juma"
+    @Builder.Default
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "doctor_working_days", joinColumns = @JoinColumn(name = "doctor_id"))
+    @Column(name = "day_of_week")
+    private List<String> workingDays = new ArrayList<>();    // masalan: "Dush-Juma"
 
     private String workStartTime;    // masalan: "09:00"
 
