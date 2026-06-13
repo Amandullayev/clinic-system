@@ -12,7 +12,8 @@ import uz.clinic.entity.User;
 import uz.clinic.enums.Role;
 import uz.clinic.repository.UserRepository;
 import uz.clinic.security.JwtUtil;
-
+import uz.clinic.entity.Patient;
+import uz.clinic.repository.PatientRepository;
 import java.io.IOException;
 
 @Component
@@ -23,6 +24,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private String frontendUrl;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private final PatientRepository patientRepository;
 
 
     @Override
@@ -41,7 +43,14 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .role(Role.PATIENT)
                     .active(true)
                     .build();
-            return userRepository.save(newUser);
+            User saved = userRepository.save(newUser);
+            patientRepository.save(Patient.builder()
+                    .fullName(name)
+                    .email(email)
+                    .user(saved)
+                    .active(true)
+                    .build());
+            return saved;
         });
 
         String role  = "ROLE_" + user.getRole().name();

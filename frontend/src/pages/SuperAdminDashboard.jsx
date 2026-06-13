@@ -208,7 +208,14 @@ export default function SuperAdminDashboard() {
             </div>
             <div className="form-group">
               <label>Email *</label>
-              <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="email@example.com" />
+              <input
+              type="email"
+              value={form.email}
+              onChange={e => setForm({ ...form, email: e.target.value })}
+              placeholder="email@example.com"
+              disabled={!!editId}
+              style={editId ? { opacity: 0.6, cursor: "not-allowed" } : {}}
+            />
             </div>
             {!editId && (
               <div className="form-group">

@@ -47,3 +47,11 @@ export const deletePatient = async (id) => {
   handleUnauthorized(res);
   if (!res.ok) throw new Error("Bemorni o'chirishda xato");
 };
+
+export const getPatientDetails = async (id) => {
+  const res = await fetch(`${API}/${id}/details`, { headers: headers() });
+  handleUnauthorized(res);
+  if (!res.ok) throw new Error("Bemor ma'lumotlarini yuklashda xato");
+  const data = await res.json();
+  return data.data || {};
+};

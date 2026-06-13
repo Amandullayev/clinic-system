@@ -67,10 +67,7 @@ public class DataInitializer implements CommandLineRunner {
             }
 
             if (role == Role.DOCTOR) {
-                boolean exists = doctorRepository.findAll()
-                        .stream()
-                        .anyMatch(d -> d.getUser() != null
-                                && d.getUser().getId().equals(saved.getId()));
+                boolean exists = doctorRepository.existsByUserId(saved.getId());
                 if (!exists) {
                     doctorRepository.save(Doctor.builder()
                             .user(saved)

@@ -10,6 +10,7 @@ import {
   Settings,
   LogOut,
   Pill,
+  PhoneCall,
 } from "lucide-react";
 
 function getRole() {
@@ -24,10 +25,12 @@ function getRole() {
 }
 
 const SUPER_ADMIN_MENU = [
+
   { path: "/superadmin/dashboard", icon: Users,         label: "Foydalanuvchilar" },
   { path: "/dashboard",            icon: LayoutDashboard,label: "Bosh sahifa" },
   { path: "/appointments",         icon: Calendar,       label: "Qabullar" },
   { path: "/patients",             icon: Users,          label: "Bemorlar" },
+  { path: "/receptionists",  icon: PhoneCall,   label: "Qabulxona xodimlari" }, 
   { path: "/doctors",              icon: UserRound,      label: "Shifokorlar" },
   { path: "/services",             icon: Stethoscope,    label: "Xizmatlar" },
   { path: "/payments",             icon: CreditCard,     label: "To'lovlar" },
@@ -37,10 +40,12 @@ const SUPER_ADMIN_MENU = [
 ];
 
 const ADMIN_MENU = [
+  
   { path: "/dashboard",    icon: LayoutDashboard, label: "Bosh sahifa" },
   { path: "/appointments", icon: Calendar,        label: "Qabullar" },
   { path: "/patients",     icon: Users,           label: "Bemorlar" },
   { path: "/doctors",      icon: UserRound,       label: "Shifokorlar" },
+  { path: "/receptionists",  icon: PhoneCall,   label: "Qabulxona xodimlari" },
   { path: "/services",     icon: Stethoscope,     label: "Xizmatlar" },
   { path: "/payments",     icon: CreditCard,      label: "To'lovlar" },
   { path: "/medications",  icon: Pill,            label: "Dorilar" },
@@ -98,7 +103,7 @@ export default function Sidebar() {
       padding: "20px 0",
     }}>
       <div style={{ padding: "0 20px 30px", fontSize: "22px", fontWeight: "bold", color: "#0D7377" }}>
-        CLINIQ
+        CLINIC
       </div>
 
       <nav style={{ flex: 1 }}>

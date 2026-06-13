@@ -121,7 +121,7 @@ public class PatientPanelServiceImpl implements PatientPanelService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Navbat topilmadi"));
         if (!appointment.getPatient().getId().equals(patient.getId()))
-            throw new SecurityException("Bu navbatni bekor qilish huquqingiz yo'q");
+            throw new BadRequestException("Bu navbatni bekor qilish huquqingiz yo'q");
         if (appointment.getStatus() == AppointmentStatus.COMPLETED)
             throw new BadRequestException("Bajarilgan navbatni bekor qilib bo'lmaydi");
         appointment.setStatus(AppointmentStatus.CANCELLED);

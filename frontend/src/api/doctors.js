@@ -10,9 +10,9 @@ export const getAllDoctors = async () => {
 };
 
 export const registerDoctorUser = async (fullName, email, password) => {
-  const res = await fetch("/api/auth/register", {
+  const res = await fetch("/api/users", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...headers() },
     body: JSON.stringify({
       fullName,
       email,
@@ -20,6 +20,7 @@ export const registerDoctorUser = async (fullName, email, password) => {
       role: "DOCTOR",
     }),
   });
+  handleUnauthorized(res);
   if (!res.ok) throw new Error("Foydalanuvchi yaratishda xato");
   return res.json();
 };

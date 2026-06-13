@@ -1,20 +1,17 @@
 const API = "/api/settings";
 import { headers, handleUnauthorized } from "./apiClient.js";
 
-export const changePassword = async (oldPassword, newPassword) => {
+export const changePassword = async ({ oldPassword, newPassword }) => {
   const res = await fetch("/api/auth/change-password", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
+    headers: { "Content-Type": "application/json", ...headers() },
     body: JSON.stringify({ oldPassword, newPassword }),
   });
-
-  if (!res.ok) throw new Error("Parolni o‘zgartirib bo‘lmadi");
-
-  const data = await res.json();
-  return data;
+  if (!res.ok) {
+    const e = await res.json();
+    throw new Error(e.message || "Parolni o'zgartirib bo'lmadi");
+  }
+  return res.json();
 };
 
 export const getSettings = async () => {

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Layout from "../components/layout/Layout";
 import { getAllPatients, createPatient, updatePatient, deletePatient } from "../api/patients";
 import "../styles/patients.css";
+import PatientDrawer from "../components/PatientDrawer";
 
 const emptyForm = {
   fullName: "", phone: "", email: "",
@@ -23,6 +24,7 @@ function formatDate(dateStr) {
 }
 
 export default function Patients() {
+  const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [patients, setPatients] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [search, setSearch] = useState("");
@@ -63,7 +65,8 @@ export default function Patients() {
     setShowModal(true);
   };
 
-  const openEdit = (p) => {
+  const openEdit = (e, p) => {
+    e.stopPropagation(); // drawer ochilmasin
     setForm({
       fullName: p.fullName || "",
       phone: p.phone || "",
@@ -94,7 +97,8 @@ export default function Patients() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (e, id) => {
+    e.stopPropagation(); // drawer ochilmasin
     if (!window.confirm("Rostdan ham o'chirasizmi?")) return;
     await deletePatient(id);
     fetchAll();
@@ -139,7 +143,11 @@ export default function Patients() {
               </thead>
               <tbody>
                 {filtered.map(p => (
-                  <tr key={p.id}>
+                  <tr
+                    key={p.id}
+                    onClick={() => setSelectedPatientId(p.id)}
+                    style={{ cursor: "pointer" }}
+                  >
                     <td className="patient-id">{formatId(p.id)}</td>
                     <td>
                       <div className="patient-name-cell">
@@ -157,8 +165,8 @@ export default function Patients() {
                       </span>
                     </td>
                     <td>
-                      <button className="btn-edit" onClick={() => openEdit(p)}>Tahrirlash</button>
-                      <button className="btn-delete" onClick={() => handleDelete(p.id)}>O'chirish</button>
+                      <button className="btn-edit" onClick={(e) => openEdit(e, p)}>Tahrirlash</button>
+                      <button className="btn-delete" onClick={(e) => handleDelete(e, p.id)}>O'chirish</button>
                     </td>
                   </tr>
                 ))}
@@ -231,6 +239,14 @@ export default function Patients() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Bemor kartochkasi — return ichida, Layout oxirida */}
+      {selectedPatientId && (
+        <PatientDrawer
+          patientId={selectedPatientId}
+          onClose={() => setSelectedPatientId(null)}
+        />
       )}
 
     </Layout>

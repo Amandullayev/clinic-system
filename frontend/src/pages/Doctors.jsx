@@ -128,9 +128,12 @@ export default function Doctors() {
       experienceYears: d.experienceYears || "",
       workStartTime: d.workStartTime || "",
       workEndTime: d.workEndTime || "",
-      workingDays: d.workingDays
-        ? d.workingDays.split(",").map(s => s.trim()).filter(Boolean)
-        : [],
+      wworkingDays: d.workingDays
+  ? d.workingDays.split(",").map(s => s.trim()).filter(Boolean).map(n => {
+      const num = parseInt(n);
+      return !isNaN(num) ? DAYS[num - 1] : n;
+    }).filter(Boolean)
+  : [],
       status: d.status || "ACTIVE",
     });
     setEditId(d.id);
@@ -169,7 +172,7 @@ export default function Doctors() {
           phone: form.phone,
           licenseNumber: form.licenseNumber,
           experienceYears: form.experienceYears ? Number(form.experienceYears) : null,
-          workingDays: form.workingDays.join(", "),
+          workingDays: form.workingDays.map(d => DAYS.indexOf(d) + 1).join(","),
           workStartTime: form.workStartTime || null,
           workEndTime: form.workEndTime || null,
           status: form.status,
@@ -196,7 +199,7 @@ export default function Doctors() {
           phone: form.phone,
           licenseNumber: form.licenseNumber,
           experienceYears: form.experienceYears ? Number(form.experienceYears) : null,
-          workingDays: form.workingDays.join(", "),
+          workingDays: form.workingDays.map(d => DAYS.indexOf(d) + 1).join(","),
           workStartTime: form.workStartTime || null,
           workEndTime: form.workEndTime || null,
           status: form.status,
@@ -315,7 +318,6 @@ export default function Doctors() {
           <div className="modal">
             <h3>{editId ? "Shifokorni tahrirlash" : "Yangi shifokor qo'shish"}</h3>
             {error && <p className="error-msg">{error}</p>}
-
             {/* Faqat yangi qo'shishda ko'rinadi */}
             {!editId && (
               <>

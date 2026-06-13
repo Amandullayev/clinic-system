@@ -1,16 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "../components/layout/Layout";
-import { changePassword } from "../api/settings";
+import { changePassword, getSettings, updateSettings } from "../api/settings";
 import "../styles/settings.css";
 
 const emptyForm = { oldPassword: "", newPassword: "", confirmPassword: "" };
 
 export default function Settings() {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const isSuperAdmin = user?.role === "SUPER_ADMIN";
+  
+
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [clinic, setClinic] = useState(null);
+  const [clinicMsg, setClinicMsg] = useState("");
+  const [clinicLoading, setClinicLoading] = useState(false);
+
+  useEffect(() => {
+    if (isSuperAdmin) {
+      getSettings().then(setClinic);
+    }
+  }, []);
 
   const handleChange = async () => {
     setError("");
@@ -48,6 +61,19 @@ export default function Settings() {
       setError("Serverga ulanib bo'lmadi");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleClinicSave = async () => {
+    setClinicMsg("");
+    setClinicLoading(true);
+    try {
+      await updateSettings(clinic);
+      setClinicMsg("Sozlamalar muvaffaqiyatli saqlandi!");
+    } catch {
+      setClinicMsg("Xato yuz berdi");
+    } finally {
+      setClinicLoading(false);
     }
   };
 
@@ -112,6 +138,80 @@ export default function Settings() {
           </button>
         </div>
       </div>
+
+      {isSuperAdmin && clinic && (
+        <div className="settings-card" style={{ marginTop: "1.5rem" }}>
+          <h3>Klinika sozlamalari</h3>
+
+          {clinicMsg && (
+            <p className={clinicMsg.includes("Xato") ? "settings-error" : "settings-success"}>
+              {clinicMsg}
+            </p>
+          )}
+
+          <div className="settings-grid">
+            <div className="form-group">
+              <label>Klinika nomi</label>
+              <input
+                value={clinic.clinicName || ""}
+                onChange={e => setClinic({ ...clinic, clinicName: e.target.value })}
+              />
+            </div>
+            <div className="form-group">
+              <label>Telefon</label>
+              <input
+                value={clinic.phone || ""}
+                onChange={e => setClinic({ ...clinic, phone: e.target.value })}
+              />
+            </div>
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                value={clinic.email || ""}
+                onChange={e => setClinic({ ...clinic, email: e.target.value })}
+              />
+            </div>
+            <div className="form-group">
+              <label>Veb-sayt</label>
+              <input
+                value={clinic.website || ""}
+                onChange={e => setClinic({ ...clinic, website: e.target.value })}
+              />
+            </div>
+            <div className="form-group">
+              <label>Manzil</label>
+              <input
+                value={clinic.address || ""}
+                onChange={e => setClinic({ ...clinic, address: e.target.value })}
+              />
+            </div>
+            <div className="form-group">
+              <label>Ish boshlanish vaqti</label>
+              <input
+                type="time"
+                value={clinic.openTime || ""}
+                onChange={e => setClinic({ ...clinic, openTime: e.target.value })}
+              />
+            </div>
+            <div className="form-group">
+              <label>Ish tugash vaqti</label>
+              <input
+                type="time"
+                value={clinic.closeTime || ""}
+                onChange={e => setClinic({ ...clinic, closeTime: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <button
+            className="btn-save-password"
+            onClick={handleClinicSave}
+            disabled={clinicLoading}
+          >
+            {clinicLoading ? "Saqlanmoqda..." : "Sozlamalarni saqlash"}
+          </button>
+        </div>
+      )}
     </Layout>
   );
 }

@@ -1,24 +1,28 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+import OAuth2Callback from "./pages/OAuth2Callback";
 import Dashboard from "./pages/Dashboard";
-import Patients from "./pages/Patients";
-import Doctors from "./pages/Doctors";
-import Appointments from "./pages/Appointments";
-import Services from "./pages/Services";
-import Payments from "./pages/Payments";
-import Reports from "./pages/Reports";
-import Settings from "./pages/Settings";
-import Medications from "./pages/Medications";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
 import PatientDashboard from "./pages/patient/PatientDashboard";
 import ReceptionistDashboard from "./pages/receptionist/ReceptionistDashboard";
+import Patients from "./pages/Patients";
+import Doctors from "./pages/Doctors";
+import Receptionists from "./pages/Receptionists";
+import Appointments from "./pages/Appointments";
+import Services from "./pages/Services";
+import Payments from "./pages/Payments";
+import Medications from "./pages/Medications";
+import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
 
 function isTokenValid() {
   const token = localStorage.getItem("token");
   if (!token) return false;
   try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
+    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+const payload = JSON.parse(atob(base64));
     return payload.exp * 1000 > Date.now();
   } catch {
     return false;
@@ -29,7 +33,8 @@ function getRole() {
   const token = localStorage.getItem("token");
   if (!token) return null;
   try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
+    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+const payload = JSON.parse(atob(base64));
     return payload.role || null;
   } catch {
     return null;
@@ -52,7 +57,6 @@ function PrivateRoute({ children, allowedRoles }) {
   }
   return children;
 }
-
 function PublicRoute({ children }) {
   return isTokenValid() ? <Navigate to={getHomeByRole()} /> : children;
 }
@@ -61,13 +65,19 @@ const SUPER_ADMIN_ONLY = ["ROLE_SUPER_ADMIN"];
 const ADMIN_ROLES      = ["ROLE_SUPER_ADMIN", "ROLE_ADMIN"];
 const STAFF_ROLES      = ["ROLE_SUPER_ADMIN", "ROLE_ADMIN", "ROLE_RECEPTIONIST"];
 const MEDICAL_ROLES    = ["ROLE_SUPER_ADMIN", "ROLE_ADMIN", "ROLE_RECEPTIONIST", "ROLE_DOCTOR"];
+const ALL_ROLES        = ["ROLE_SUPER_ADMIN", "ROLE_ADMIN", "ROLE_RECEPTIONIST", "ROLE_DOCTOR", "ROLE_PATIENT"];
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
+        {/* Ommaviy sahifalar */}
+        <Route path="/login"    element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+        <Route path="/oauth2/callback" element={<OAuth2Callback />} />
+
+        {/* Asosiy yo'naltirish */}
         <Route
           path="/"
           element={isTokenValid() ? <Navigate to={getHomeByRole()} /> : <Navigate to="/login" />}
@@ -79,24 +89,27 @@ function App() {
         {/* Admin */}
         <Route path="/dashboard"    element={<PrivateRoute allowedRoles={ADMIN_ROLES}><Dashboard /></PrivateRoute>} />
         <Route path="/patients"     element={<PrivateRoute allowedRoles={STAFF_ROLES}><Patients /></PrivateRoute>} />
+        <Route path="/doctors"      element={<PrivateRoute allowedRoles={ADMIN_ROLES}><Doctors /></PrivateRoute>} />
+        <Route path="/receptionists" element={<PrivateRoute allowedRoles={ADMIN_ROLES}><Receptionists /></PrivateRoute>} />
         <Route path="/appointments" element={<PrivateRoute allowedRoles={STAFF_ROLES}><Appointments /></PrivateRoute>} />
         <Route path="/services"     element={<PrivateRoute allowedRoles={MEDICAL_ROLES}><Services /></PrivateRoute>} />
         <Route path="/payments"     element={<PrivateRoute allowedRoles={STAFF_ROLES}><Payments /></PrivateRoute>} />
         <Route path="/medications"  element={<PrivateRoute allowedRoles={MEDICAL_ROLES}><Medications /></PrivateRoute>} />
-        <Route path="/doctors"      element={<PrivateRoute allowedRoles={ADMIN_ROLES}><Doctors /></PrivateRoute>} />
         <Route path="/reports"      element={<PrivateRoute allowedRoles={ADMIN_ROLES}><Reports /></PrivateRoute>} />
-        <Route path="/settings"     element={<PrivateRoute><Settings /></PrivateRoute>} />
+        <Route path="/settings"     element={<PrivateRoute allowedRoles={ALL_ROLES}><Settings /></PrivateRoute>} />
 
         {/* Receptionist */}
-        <Route path="/receptionist/dashboard" element={<PrivateRoute allowedRoles={["ROLE_RECEPTIONIST"]}><ReceptionistDashboard /></PrivateRoute>} />
+        <Route path="/receptionist/dashboard" element={<PrivateRoute allowedRoles={["ROLE_RECEPTIONIST", "ROLE_SUPER_ADMIN"]}><ReceptionistDashboard /></PrivateRoute>} />
 
         {/* Doctor */}
-        <Route path="/doctor/dashboard" element={<PrivateRoute allowedRoles={["ROLE_DOCTOR"]}><DoctorDashboard /></PrivateRoute>} />
+        <Route path="/doctor/dashboard" element={<PrivateRoute allowedRoles={["ROLE_DOCTOR", "ROLE_SUPER_ADMIN"]}><DoctorDashboard /></PrivateRoute>} />
 
         {/* Patient */}
-        <Route path="/patient/dashboard" element={<PrivateRoute allowedRoles={["ROLE_PATIENT"]}><PatientDashboard /></PrivateRoute>} />
+        <Route path="/patient/dashboard" element={<PrivateRoute allowedRoles={["ROLE_PATIENT", "ROLE_SUPER_ADMIN"]}><PatientDashboard /></PrivateRoute>} />
 
+        {/* Noto'g'ri manzil */}
         <Route path="*" element={<Navigate to={isTokenValid() ? getHomeByRole() : "/login"} />} />
+
       </Routes>
     </BrowserRouter>
   );

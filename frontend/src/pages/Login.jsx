@@ -2,6 +2,7 @@ import { useState } from "react";
 import "../styles/login.css";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -13,7 +14,23 @@ function Login() {
 
   const handleLogin = async () => {
     setError("");
-    setLoading(true);
+     if (!email) {
+    setError("Email kiritish majburiy");
+    return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setError("Email formati noto'g'ri");
+        return;
+      }
+      if (!password) {
+        setError("Parol kiritish majburiy");
+        return;
+      }
+      if (password.length < 8) {
+        setError("Parol kamida 8 ta belgi bo'lishi kerak");
+        return;
+      }
+        setLoading(true);
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -28,17 +45,17 @@ function Login() {
         try {
           const payload = JSON.parse(atob(data.data.token.split(".")[1]));
           const role = payload.role;
-          if (role === "ROLE_SUPER_ADMIN") {
-              navigate("/superadmin/dashboard");
-          } else if (role === "ROLE_RECEPTIONIST") {
+            if (role === "ROLE_SUPER_ADMIN" || role === "ROLE_ADMIN") {
+              navigate("/role-selector");
+            } else if (role === "ROLE_RECEPTIONIST") {
               navigate("/receptionist/dashboard");
-          } else if (role === "ROLE_DOCTOR") {
+            } else if (role === "ROLE_DOCTOR") {
               navigate("/doctor/dashboard");
-          } else if (role === "ROLE_PATIENT") {
-            navigate("/patient/dashboard");
-          } else {
-            navigate("/dashboard");
-          }
+            } else if (role === "ROLE_PATIENT") {
+              navigate("/patient/dashboard");
+            } else {
+              navigate("/dashboard");
+            }
         } catch {
           navigate("/dashboard");
         }
@@ -55,7 +72,7 @@ function Login() {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2 className="login-title">CLINIQ</h2>
+        <h2 className="login-title">CLINIC</h2>
         <p className="login-subtitle">Tizimga kirish</p>
 
         <input
@@ -91,8 +108,35 @@ function Login() {
         >
           {loading ? "Yuklanmoqda..." : "Kirish"}
         </button>
+
+        
+        <div style={{ textAlign: "center", margin: "12px 0", color: "#94a3b8", fontSize: "13px" }}>
+  yoki
+</div>
+
+<button
+  onClick={() => window.location.href = "http://localhost:8080/oauth2/authorization/google"}
+  className="google-login-btn"
+>
+  <img 
+    src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+    width={18} 
+    alt="Google"
+    style={{ marginRight: 8 }}
+  />
+  Google bilan kirish
+</button>
+<p style={{ textAlign: "center", marginTop: 16, fontSize: 14, color: "#64748b" }}>
+  Akkauntingiz yo'qmi?{" "}
+  <Link to="/register" style={{ color: "#0D7377", fontWeight: 600 }}>
+    Ro'yxatdan o'tish
+  </Link>
+</p>
+
       </div>
+      
     </div>
+    
   );
 }
 

@@ -56,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ApiResponse sendOtp(String email) {
-        int otp = 100000 + secureRandom.nextInt(900000);
+        int otp = 10000 + secureRandom.nextInt(90000);
         otpRepository.save(OtpVerification.builder()
                 .email(email)
                 .otp(String.valueOf(otp))

@@ -54,7 +54,7 @@ public class DoctorPanelServiceImpl implements DoctorPanelService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Uchrashuv topilmadi"));
         if (!appointment.getDoctor().getId().equals(doctor.getId())) {
-            throw new SecurityException("Bu uchrashuvni o'zgartirish huquqingiz yo'q");
+            throw new BadRequestException("Bu uchrashuvni o'zgartirish huquqingiz yo'q");
         }
         try {
             appointment.setStatus(AppointmentStatus.valueOf(status.toUpperCase()));

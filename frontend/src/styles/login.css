@@ -126,3 +126,22 @@
 .toggle-password:hover {
   color: #0d7377;
 }
+
+.google-login-btn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #1a202c;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+.google-login-btn:hover {
+  background: #f7fafc;
+}
