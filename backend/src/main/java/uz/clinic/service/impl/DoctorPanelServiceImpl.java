@@ -8,18 +8,15 @@ import uz.clinic.dto.response.PatientResponse;
 import uz.clinic.entity.Appointment;
 import uz.clinic.entity.Doctor;
 import uz.clinic.enums.AppointmentStatus;
-import uz.clinic.exception.BadRequestException;
-import uz.clinic.exception.ResourceNotFoundException;
+import uz.clinic.enums.errors.ErrorType;
+import uz.clinic.exception.AppException;
 import uz.clinic.mapper.AppointmentMapper;
 import uz.clinic.mapper.PatientMapper;
 import uz.clinic.repository.AppointmentRepository;
 import uz.clinic.repository.DoctorRepository;
 import uz.clinic.service.DoctorPanelService;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.*;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +26,11 @@ public class DoctorPanelServiceImpl implements DoctorPanelService {
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMapper appointmentMapper;
     private final PatientMapper patientMapper;
+
+    private Doctor getDoctorByEmail(String email) {
+        return doctorRepository.findByUser_Email(email)
+                .orElseThrow(() -> new AppException(ErrorType.DOCTOR_NOT_FOUND));
+    }
 
     @Override
     public List<AppointmentResponse> getMyAppointments(String email) {
@@ -51,36 +53,36 @@ public class DoctorPanelServiceImpl implements DoctorPanelService {
     @Override
     public AppointmentResponse updateAppointmentStatus(Long appointmentId, String status, String email) {
         Doctor doctor = getDoctorByEmail(email);
+
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Uchrashuv topilmadi"));
-        if (!appointment.getDoctor().getId().equals(doctor.getId())) {
-            throw new BadRequestException("Bu uchrashuvni o'zgartirish huquqingiz yo'q");
-        }
+                .orElseThrow(() -> new AppException(ErrorType.APPOINTMENT_NOT_FOUND));
+
+        if (!appointment.getDoctor().getId().equals(doctor.getId()))
+            throw new AppException(ErrorType.APPOINTMENT_UPDATE_FORBIDDEN);
+
         try {
             appointment.setStatus(AppointmentStatus.valueOf(status.toUpperCase()));
         } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Noto'g'ri status: " + status +
-                    ". Mumkin bo'lgan statuslar: PENDING, CONFIRMED, COMPLETED, CANCELLED");
+            throw new AppException(ErrorType.APPOINTMENT_STATUS_INVALID);
         }
-        return appointmentMapper.toResponse(appointmentRepository.save(appointment));
-    }
 
-    private Doctor getDoctorByEmail(String email) {
-        return doctorRepository.findByUser_Email(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Shifokor topilmadi"));
+        return appointmentMapper.toResponse(appointmentRepository.save(appointment));
     }
 
     @Override
     public AppointmentResponse writeDiagnosis(Long appointmentId, DiagnoseRequest request, String email) {
         Doctor doctor = getDoctorByEmail(email);
+
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Uchrashuv topilmadi"));
-        if (!appointment.getDoctor().getId().equals(doctor.getId())) {
-            throw new SecurityException("Bu uchrashuvni o'zgartirish huquqingiz yo'q");
-        }
+                .orElseThrow(() -> new AppException(ErrorType.APPOINTMENT_NOT_FOUND));
+
+        if (!appointment.getDoctor().getId().equals(doctor.getId()))
+            throw new AppException(ErrorType.APPOINTMENT_UPDATE_FORBIDDEN);
+
         if (request.getDiagnosis()    != null) appointment.setDiagnosis(request.getDiagnosis());
         if (request.getPrescription() != null) appointment.setPrescription(request.getPrescription());
         if (request.getNotes()        != null) appointment.setNotes(request.getNotes());
+
         return appointmentMapper.toResponse(appointmentRepository.save(appointment));
     }
 }

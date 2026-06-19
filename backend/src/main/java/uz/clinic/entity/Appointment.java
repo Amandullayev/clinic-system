@@ -45,6 +45,19 @@ public class Appointment {
 
     private String notes;
 
+    // Bemor emaildagi "Tasdiqlash" havolasida ishlatiladigan token
+    @Column(unique = true)
+    private String confirmToken;
+
+    // Bemor tasdiqlagan vaqt
+    private LocalDateTime confirmedAt;
+
+    // Receptionist "Keldi" tugmasini bosganda yoziladigan vaqt
+    private LocalDateTime arrivedAt;
+
+    // Shu kun uchun berilgan navbat raqami
+    private Integer queueNumber;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 

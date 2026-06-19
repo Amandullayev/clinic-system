@@ -34,20 +34,20 @@ public class DoctorController {
     @PostMapping
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse<DoctorResponse>> create(@Valid @RequestBody DoctorRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok("Shifokor qo'shildi", doctorService.create(request)));
+        return ResponseEntity.ok(ApiResponse.ok("Doctor added", doctorService.create(request)));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse<DoctorResponse>> update(@PathVariable Long id,
                                                               @Valid @RequestBody DoctorRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok("Shifokor yangilandi", doctorService.update(id, request)));
+        return ResponseEntity.ok(ApiResponse.ok("Doctor updated", doctorService.update(id, request)));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         doctorService.delete(id);
-        return ResponseEntity.ok(ApiResponse.ok("Shifokor o'chirildi", null));
+        return ResponseEntity.ok(ApiResponse.ok("Doctor deleted", null));
     }
 }

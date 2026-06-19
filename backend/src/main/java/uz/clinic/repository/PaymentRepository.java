@@ -1,5 +1,6 @@
 package uz.clinic.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,6 +30,12 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     boolean existsByAppointmentId(Long appointmentId);
 
+    // TUZATILDI: Pageable qo'shildi — DB darajasida limit va tartiblash qo'llab-quvvatlanadi
+    // PatientServiceImpl.getDetails() da ishlatiladi: oxirgi 3 ta to'lov, createdAt bo'yicha
+    @Query("SELECT p FROM Payment p JOIN p.appointment a WHERE a.patient.id = :patientId")
+    List<Payment> findByPatientId(@Param("patientId") Long patientId, Pageable pageable);
+
+    // Eski metod — boshqa joylarda ishlatilishi uchun saqlanadi
     @Query("SELECT p FROM Payment p JOIN p.appointment a WHERE a.patient.id = :patientId ORDER BY p.createdAt DESC")
     List<Payment> findByPatientId(@Param("patientId") Long patientId);
 }

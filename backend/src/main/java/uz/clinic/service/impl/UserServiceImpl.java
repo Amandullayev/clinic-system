@@ -1,6 +1,5 @@
 package uz.clinic.service.impl;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -8,8 +7,8 @@ import uz.clinic.dto.request.UserCreateRequest;
 import uz.clinic.dto.request.UserUpdateRequest;
 import uz.clinic.dto.response.UserResponse;
 import uz.clinic.entity.User;
-import uz.clinic.exception.BadRequestException;
-import uz.clinic.exception.ResourceNotFoundException;
+import uz.clinic.enums.errors.ErrorType;
+import uz.clinic.exception.AppException;
 import uz.clinic.repository.UserRepository;
 import uz.clinic.service.UserService;
 
@@ -25,9 +24,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponse> getAll() {
-        return userRepository.findAll()
+        return userRepository.findAllByDeletedFalse()
                 .stream()
-                .filter(u -> !u.isDeleted())
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -39,9 +37,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse create(UserCreateRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BadRequestException("Bu email allaqachon mavjud");
-        }
+        if (userRepository.existsByEmail(request.getEmail()))
+            throw new AppException(ErrorType.USER_EMAIL_DUPLICATE);
+
         User user = new User();
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
@@ -55,9 +53,9 @@ public class UserServiceImpl implements UserService {
     public UserResponse update(Long id, UserUpdateRequest request) {
         User user = findById(id);
         if (request.getFullName() != null) user.setFullName(request.getFullName());
-        if (request.getEmail() != null)    user.setEmail(request.getEmail());
-        if (request.getRole() != null)     user.setRole(request.getRole());
-        if (request.getActive() != null)   user.setActive(request.getActive());
+        if (request.getEmail()    != null) user.setEmail(request.getEmail());
+        if (request.getRole()     != null) user.setRole(request.getRole());
+        if (request.getActive()   != null) user.setActive(request.getActive());
         return toResponse(userRepository.save(user));
     }
 
@@ -75,9 +73,10 @@ public class UserServiceImpl implements UserService {
         return toResponse(userRepository.save(user));
     }
 
+    // BUG #6 TUZATILDI: deleted=true foydalanuvchi ID orqali topilmaydi
     private User findById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Foydalanuvchi topilmadi"));
+        return userRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(() -> new AppException(ErrorType.USER_NOT_FOUND));
     }
 
     private UserResponse toResponse(User user) {

@@ -1,5 +1,6 @@
 package uz.clinic.dto.request;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -20,8 +21,11 @@ public class DoctorRequest {
     private String phone;
     private String licenseNumber;
     private Integer experienceYears;
-    private List<String> workingDays = new ArrayList<>();
-    private String workStartTime;
-    private String workEndTime;
     private DoctorStatus status;
+
+    // O'ZGARTIRILDI: eski workingDays / workStartTime / workEndTime o'rniga
+    // har bir hafta kuni uchun alohida jadval ro'yxati.
+    // Bo'sh ro'yxat = shifokorning hech qaysi kuni belgilanmagan (hammasi dam olish).
+    @Valid
+    private List<DoctorScheduleRequest> schedules = new ArrayList<>();
 }

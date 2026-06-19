@@ -17,7 +17,7 @@ public class RegisterRequest {
     private String email;
 
     @NotBlank(message = "Parol kiritilishi shart")
-    @Size(min = 6, message = "Parol kamida 8 ta belgi bo'lishi kerak")
+    @Size(min = 8, message = "Parol kamida 8 ta belgi bo'lishi kerak")
     private String password;
 
     private Role role;

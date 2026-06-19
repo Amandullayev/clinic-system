@@ -19,7 +19,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("CLINIC API")
                         .version("1.0")
-                        .description("Klinika boshqaruv tizimi API"))
+                        .description("Clinic Management System API\n"))
                 .addSecurityItem(new SecurityRequirement()
                         .addList(securitySchemeName))
                 .components(new Components()

@@ -14,6 +14,8 @@ public class MedicationMapper {
                 .quantity(request.getQuantity())
                 .minQuantity(request.getMinQuantity())
                 .unit(request.getUnit())
+                .category(request.getCategory())
+                .price(request.getPrice())
                 .build();
     }
 

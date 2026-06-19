@@ -10,6 +10,9 @@ public interface MedicalServiceRepository extends JpaRepository<MedicalService, 
 
     List<MedicalService> findByCategoryAndActiveTrue(ServiceCategory category);
 
+    // BUG #3 TUZATILDI: ServiceController category filtri uchun
+    List<MedicalService> findAllByCategoryAndActiveTrue(ServiceCategory category);
+
     List<MedicalService> findAllByActiveTrue();
 
     List<MedicalService> findByNameContainingIgnoreCase(String name);

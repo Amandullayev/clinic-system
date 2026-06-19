@@ -42,7 +42,7 @@ public class DoctorPanelController {
             @RequestParam String status,
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(ApiResponse.ok(
-                "Status yangilandi",
+                "Status updated",
                 doctorPanelService.updateAppointmentStatus(id, status, userDetails.getUsername())));
     }
 
@@ -52,7 +52,7 @@ public class DoctorPanelController {
             @RequestBody DiagnoseRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(ApiResponse.ok(
-                "Tashxis saqlandi",
+                "Diagnosis saved",
                 doctorPanelService.writeDiagnosis(id, request, userDetails.getUsername())));
     }
 }

@@ -42,4 +42,4 @@ bin/
 
 ### Mac OS ###
 .DS_Store
-.application-local.properties
+src/main/resources/application-local.properties

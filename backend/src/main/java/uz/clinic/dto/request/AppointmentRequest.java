@@ -2,6 +2,7 @@ package uz.clinic.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import uz.clinic.enums.AppointmentStatus;
 
 import java.time.LocalDateTime;
 
@@ -20,4 +21,6 @@ public class AppointmentRequest {
     private LocalDateTime appointmentTime;
 
     private String notes;
+
+    private AppointmentStatus status;
 }

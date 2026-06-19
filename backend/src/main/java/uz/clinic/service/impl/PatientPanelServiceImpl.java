@@ -1,46 +1,50 @@
 package uz.clinic.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uz.clinic.dto.request.AppointmentRequest;
 import uz.clinic.dto.response.AppointmentResponse;
-import uz.clinic.entity.Appointment;
-import uz.clinic.entity.Doctor;
-import uz.clinic.entity.MedicalService;
-import uz.clinic.entity.Patient;
-import uz.clinic.entity.User;
+import uz.clinic.entity.*;
 import uz.clinic.enums.AppointmentStatus;
-import uz.clinic.exception.BadRequestException;
-import uz.clinic.exception.ResourceNotFoundException;
+import uz.clinic.enums.errors.ErrorType;
+import uz.clinic.exception.AppException;
 import uz.clinic.mapper.AppointmentMapper;
-import uz.clinic.repository.AppointmentRepository;
-import uz.clinic.repository.DoctorRepository;
-import uz.clinic.repository.MedicalServiceRepository;
-import uz.clinic.repository.PatientRepository;
-import uz.clinic.repository.UserRepository;
+import uz.clinic.repository.*;
+import uz.clinic.service.AppointmentValidator;
+import uz.clinic.service.EmailService;
 import uz.clinic.service.PatientPanelService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PatientPanelServiceImpl implements PatientPanelService {
 
-    private final AppointmentRepository   appointmentRepository;
-    private final PatientRepository       patientRepository;
-    private final DoctorRepository        doctorRepository;
+    private final AppointmentRepository    appointmentRepository;
+    private final PatientRepository        patientRepository;
+    private final DoctorRepository         doctorRepository;
     private final MedicalServiceRepository medicalServiceRepository;
-    private final UserRepository          userRepository;
-    private final AppointmentMapper       appointmentMapper;
+    private final UserRepository           userRepository;
+    private final AppointmentMapper        appointmentMapper;
+    private final AppointmentValidator     appointmentValidator;
+    private final EmailService             emailService;
+
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
     private Patient getPatientByEmail(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Foydalanuvchi topilmadi"));
+                .orElseThrow(() -> new AppException(ErrorType.USER_NOT_FOUND));
         return patientRepository.findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("Bemor topilmadi"));
+                .orElseThrow(() -> new AppException(ErrorType.PATIENT_NOT_FOUND));
     }
 
     @Override
@@ -53,122 +57,166 @@ public class PatientPanelServiceImpl implements PatientPanelService {
     }
 
     @Override
+    @Transactional
     public AppointmentResponse bookAppointment(AppointmentRequest request, String email) {
         Patient patient = getPatientByEmail(email);
 
+        // YANGI: online booking bloklanganmi tekshirish
+        if (patient.isOnlineBookingBlocked())
+            throw new AppException(ErrorType.APPOINTMENT_BOOKING_BLOCKED);
+
         Doctor doctor = doctorRepository.findById(request.getDoctorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Shifokor topilmadi"));
+                .orElseThrow(() -> new AppException(ErrorType.DOCTOR_NOT_FOUND));
 
         MedicalService service = medicalServiceRepository.findById(request.getServiceId())
-                .orElseThrow(() -> new ResourceNotFoundException("Xizmat topilmadi"));
+                .orElseThrow(() -> new AppException(ErrorType.SERVICE_NOT_FOUND));
 
-        if (request.getAppointmentTime() == null)
-            throw new BadRequestException("Qabul vaqti kiritilishi shart");
+        // Ish vaqti, band slot va boshqa tekshiruvlar
+        appointmentValidator.validate(doctor, request.getAppointmentTime(), null);
 
-        LocalDateTime apptTime = request.getAppointmentTime();
+        // YANGI: shu kun uchun navbat raqami hisoblash
+        LocalDateTime dayStart = request.getAppointmentTime().toLocalDate().atStartOfDay();
+        LocalDateTime dayEnd   = dayStart.plusDays(1);
+        long todayCount = appointmentRepository
+                .countActiveForDoctorOnDay(doctor.getId(), dayStart, dayEnd);
+        int queueNumber = (int) todayCount + 1;
 
-        // 1. Ish kunini tekshirish
-        if (doctor.getWorkingDays() != null && !doctor.getWorkingDays().isEmpty()) {
-            int dayValue = apptTime.getDayOfWeek().getValue();
-            boolean validDay = doctor.getWorkingDays().stream()
-                    .map(String::trim)
-                    .anyMatch(d -> {
-                        try { return Integer.parseInt(d) == dayValue; }
-                        catch (NumberFormatException e) { return false; }
-                    });
-            if (!validDay)
-                throw new BadRequestException(
-                        "Shifokor bu kunda qabul qilmaydi. Ish kunlari belgilangan.");
-        }
-
-        // 2. Ish vaqtini tekshirish
-        if (doctor.getWorkStartTime() != null && doctor.getWorkEndTime() != null) {
-            java.time.LocalTime apptLocalTime = apptTime.toLocalTime();
-            java.time.LocalTime start = java.time.LocalTime.parse(doctor.getWorkStartTime());
-            java.time.LocalTime end   = java.time.LocalTime.parse(doctor.getWorkEndTime());
-            if (apptLocalTime.isBefore(start) || apptLocalTime.isAfter(end))
-                throw new BadRequestException(
-                        "Shifokor ish vaqti: " + doctor.getWorkStartTime() +
-                                " — " + doctor.getWorkEndTime() + ". Iltimos shu vaqt oralig'ini tanlang.");
-        }
-
-        // 3. Bir xil vaqtda boshqa navbat borligini tekshirish
-        boolean alreadyBooked = appointmentRepository
-                .existsByDoctorIdAndAppointmentTimeBetweenAndStatusNot(
-                        doctor.getId(),
-                        apptTime.minusMinutes(29),
-                        apptTime.plusMinutes(29),
-                        AppointmentStatus.CANCELLED);
-        if (alreadyBooked)
-            throw new BadRequestException(
-                    "Bu vaqtda shifokor band. Iltimos boshqa vaqtni tanlang.");
+        // YANGI: tasdiqlash token — UUID, bir martalik
+        String confirmToken = UUID.randomUUID().toString();
 
         Appointment appointment = Appointment.builder()
                 .patient(patient)
                 .doctor(doctor)
                 .medicalService(service)
-                .appointmentTime(apptTime)
+                .appointmentTime(request.getAppointmentTime())
                 .notes(request.getNotes())
                 .status(AppointmentStatus.PENDING)
+                .confirmToken(confirmToken)
+                .queueNumber(queueNumber)
                 .build();
 
-        return appointmentMapper.toResponse(appointmentRepository.save(appointment));
+        appointmentRepository.save(appointment);
+
+        // YANGI: tasdiqlash emaili yuborish
+        String patientEmail = patient.getEmail() != null
+                ? patient.getEmail()
+                : patient.getUser().getEmail();
+
+        try {
+            emailService.sendAppointmentConfirmationRequest(
+                    patientEmail,
+                    patient.getFullName(),
+                    doctor.getUser().getFullName(),
+                    appointment.getAppointmentTime().format(FORMATTER),
+                    confirmToken);
+        } catch (Exception e) {
+            // Email yuborilmasa ham appointment saqlanadi —
+            // scheduler 24 soatdan keyin avtomatik bekor qiladi
+            log.error("Tasdiqlash emaili yuborishda xato: appointmentId={}",
+                    appointment.getId(), e);
+        }
+
+        return appointmentMapper.toResponse(appointment);
     }
 
     @Override
+    @Transactional
     public void cancelAppointment(Long appointmentId, String email) {
         Patient patient = getPatientByEmail(email);
+
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Navbat topilmadi"));
+                .orElseThrow(() -> new AppException(ErrorType.APPOINTMENT_NOT_FOUND));
+
         if (!appointment.getPatient().getId().equals(patient.getId()))
-            throw new BadRequestException("Bu navbatni bekor qilish huquqingiz yo'q");
+            throw new AppException(ErrorType.APPOINTMENT_CANCEL_FORBIDDEN);
+
         if (appointment.getStatus() == AppointmentStatus.COMPLETED)
-            throw new BadRequestException("Bajarilgan navbatni bekor qilib bo'lmaydi");
+            throw new AppException(ErrorType.APPOINTMENT_ALREADY_COMPLETED);
+
+        // YANGI: qabuldan 2 soat oldindan kam qolganida bekor qilish mumkin emas
+        long minutesLeft = java.time.temporal.ChronoUnit.MINUTES.between(
+                LocalDateTime.now(), appointment.getAppointmentTime());
+        if (minutesLeft < 120)
+            throw new AppException(ErrorType.APPOINTMENT_CANCEL_TOO_LATE);
+
         appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointment.setConfirmToken(null);
+        appointmentRepository.save(appointment);
+    }
+
+    // YANGI: email havolasidagi token orqali tasdiqlash
+    @Override
+    @Transactional
+    public AppointmentResponse confirmByToken(String token) {
+        Appointment appointment = appointmentRepository.findByConfirmToken(token)
+                .orElseThrow(() -> new AppException(ErrorType.APPOINTMENT_NOT_FOUND));
+
+        if (appointment.getStatus() != AppointmentStatus.PENDING)
+            throw new AppException(ErrorType.APPOINTMENT_ALREADY_CONFIRMED);
+
+        // Vaqti o'tib ketgan bo'lsa tasdiqlab bo'lmaydi
+        if (appointment.getAppointmentTime().isBefore(LocalDateTime.now()))
+            throw new AppException(ErrorType.APPOINTMENT_IN_PAST);
+
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+        appointment.setConfirmedAt(LocalDateTime.now());
+        appointment.setConfirmToken(null); // token bir martalik — o'chiriladi
+        return appointmentMapper.toResponse(appointmentRepository.save(appointment));
+    }
+
+    // YANGI: email havolasidagi token orqali bekor qilish
+    @Override
+    @Transactional
+    public void cancelByToken(String token) {
+        Appointment appointment = appointmentRepository.findByConfirmToken(token)
+                .orElseThrow(() -> new AppException(ErrorType.APPOINTMENT_NOT_FOUND));
+
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED)
+            throw new AppException(ErrorType.APPOINTMENT_ALREADY_COMPLETED);
+
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointment.setConfirmToken(null);
         appointmentRepository.save(appointment);
     }
 
     @Override
     public List<String> getAvailableSlots(Long doctorId, String dateStr) {
         Doctor doctor = doctorRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shifokor topilmadi"));
+                .orElseThrow(() -> new AppException(ErrorType.DOCTOR_NOT_FOUND));
+
         LocalDate date = LocalDate.parse(dateStr);
-        // Ish kuni tekshiruvi
-        if (doctor.getWorkingDays() != null && !doctor.getWorkingDays().isEmpty()) {
-            int dayValue = date.getDayOfWeek().getValue();
-            boolean isWorkingDay = doctor.getWorkingDays().stream()
-                    .map(String::trim)
-                    .anyMatch(d -> {
-                        try { return Integer.parseInt(d) == dayValue; }
-                        catch (NumberFormatException e) { return false; }
-                    });
-            if (!isWorkingDay) return Collections.emptyList();
-        }
-        // Vaqt slotlarini generatsiya qilish
-        LocalTime startTime = (doctor.getWorkStartTime() != null && !doctor.getWorkStartTime().isBlank())
-                ? LocalTime.parse(doctor.getWorkStartTime()) : LocalTime.of(9, 0);
-        LocalTime endTime = (doctor.getWorkEndTime() != null && !doctor.getWorkEndTime().isBlank())
-                ? LocalTime.parse(doctor.getWorkEndTime()) : LocalTime.of(18, 0);
-        LocalTime lastSlot = endTime.minusMinutes(30);
+        DoctorSchedule schedule = doctor.getScheduleFor(date.getDayOfWeek());
+        if (schedule == null) return Collections.emptyList();
+
+        LocalTime startTime = schedule.getStartTime();
+        LocalTime endTime   = schedule.getEndTime();
+        LocalTime lastSlot  = endTime.minusMinutes(30);
+
         List<String> allSlots = new ArrayList<>();
         LocalTime cur = startTime;
         while (!cur.isAfter(lastSlot)) {
             allSlots.add(cur.toString());
             cur = cur.plusMinutes(30);
         }
-        // Band vaqtlarni olib tashlash
+
         LocalDateTime dayStart = date.atStartOfDay();
         LocalDateTime dayEnd   = date.atTime(23, 59, 59);
+
+        // YANGI: PENDING va CONFIRMED ham band hisoblanadi (AUTO_CANCELLED va CANCELLED emas)
         List<Appointment> booked = appointmentRepository
                 .findByDoctorIdAndAppointmentTimeBetweenAndStatusNot(
                         doctorId, dayStart, dayEnd, AppointmentStatus.CANCELLED);
+
         Set<String> bookedTimes = booked.stream()
+                .filter(a -> a.getStatus() != AppointmentStatus.AUTO_CANCELLED
+                        && a.getStatus() != AppointmentStatus.NO_SHOW)
                 .map(a -> a.getAppointmentTime().toLocalTime().toString())
-                .collect(java.util.stream.Collectors.toSet());
+                .collect(Collectors.toSet());
+
         LocalDateTime now = LocalDateTime.now();
         return allSlots.stream()
                 .filter(slot -> !bookedTimes.contains(slot))
                 .filter(slot -> LocalDateTime.of(date, LocalTime.parse(slot)).isAfter(now))
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
     }
 }

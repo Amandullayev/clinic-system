@@ -22,7 +22,7 @@ public class ServiceController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST', 'DOCTOR', 'PATIENT')")    public ResponseEntity<ApiResponse<List<ServiceResponse>>> getAll(@RequestParam(required = false) ServiceCategory category) {
-        return ResponseEntity.ok(ApiResponse.ok(medicalServiceService.getAll()));
+        return ResponseEntity.ok(ApiResponse.ok(medicalServiceService.getAll(category)));
     }
 
     @GetMapping("/{id}")
@@ -41,13 +41,13 @@ public class ServiceController {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse<ServiceResponse>> update(@PathVariable Long id,
                                                                @Valid @RequestBody ServiceRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok("Xizmat yangilandi", medicalServiceService.update(id, request)));
+        return ResponseEntity.ok(ApiResponse.ok("Service updated", medicalServiceService.update(id, request)));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         medicalServiceService.delete(id);
-        return ResponseEntity.ok(ApiResponse.ok("Xizmat o'chirildi", null));
+        return ResponseEntity.ok(ApiResponse.ok("Service deleted", null));
     }
 }

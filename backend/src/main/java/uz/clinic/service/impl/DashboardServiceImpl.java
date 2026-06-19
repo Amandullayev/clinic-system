@@ -47,10 +47,10 @@ public class DashboardServiceImpl implements DashboardService {
 
         // Statistika
         response.setTodayPatients(
-                (int) appointmentRepository.countTodayAppointments(todayStart, todayEnd)
+                (long) appointmentRepository.countTodayAppointments(todayStart, todayEnd)
         );
         response.setPendingAppointments(
-                (int) appointmentRepository.countByStatus(AppointmentStatus.PENDING)
+                (long) appointmentRepository.countByStatus(AppointmentStatus.PENDING)
         );
 
         response.setNewPatientsToday(

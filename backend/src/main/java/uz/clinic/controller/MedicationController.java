@@ -40,20 +40,20 @@ public class MedicationController {
     @PostMapping
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse<MedicationResponse>> create(@Valid @RequestBody MedicationRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok("Dori qo'shildi", medicationService.create(request)));
+        return ResponseEntity.ok(ApiResponse.ok("Medicine added", medicationService.create(request)));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse<MedicationResponse>> update(@PathVariable Long id,
                                                                   @Valid @RequestBody MedicationRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok("Dori yangilandi", medicationService.update(id, request)));
+        return ResponseEntity.ok(ApiResponse.ok("Medicine updated", medicationService.update(id, request)));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         medicationService.delete(id);
-        return ResponseEntity.ok(ApiResponse.ok("Dori o'chirildi", null));
+        return ResponseEntity.ok(ApiResponse.ok("Medicine deleted", null));
     }
 }

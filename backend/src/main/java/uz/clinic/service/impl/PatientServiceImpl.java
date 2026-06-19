@@ -1,23 +1,24 @@
 package uz.clinic.service.impl;
 
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uz.clinic.dto.request.PatientRequest;
 import uz.clinic.dto.response.AppointmentResponse;
+import uz.clinic.dto.response.PatientDetailsResponse;
 import uz.clinic.dto.response.PatientResponse;
 import uz.clinic.dto.response.PaymentResponse;
 import uz.clinic.entity.Patient;
-import uz.clinic.exception.BadRequestException;
-import uz.clinic.exception.ResourceNotFoundException;
-import uz.clinic.mapper.PatientMapper;
-import uz.clinic.repository.PatientRepository;
-import uz.clinic.service.PatientService;
-import uz.clinic.dto.response.PatientDetailsResponse;
+import uz.clinic.enums.errors.ErrorType;
+import uz.clinic.exception.AppException;
 import uz.clinic.mapper.AppointmentMapper;
+import uz.clinic.mapper.PatientMapper;
 import uz.clinic.mapper.PaymentMapper;
 import uz.clinic.repository.AppointmentRepository;
+import uz.clinic.repository.PatientRepository;
 import uz.clinic.repository.PaymentRepository;
+import uz.clinic.service.PatientService;
 
 import java.util.List;
 
@@ -34,34 +35,26 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public PatientResponse getById(Long id) {
-        Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Bemor topilmadi: " + id));
-        return patientMapper.toResponse(patient);
+        return patientMapper.toResponse(findById(id));
     }
 
     @Override
     public PatientDetailsResponse getDetails(Long id) {
-        Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Bemor topilmadi: " + id));
+        Patient patient = findById(id);
 
         PatientDetailsResponse details = new PatientDetailsResponse();
         details.setPatient(patientMapper.toResponse(patient));
 
-        // Oxirgi 5 ta navbat
         List<AppointmentResponse> appointments = appointmentRepository
-                .findAllByPatientId(id)
+                .findTop5ByPatientIdOrderByAppointmentTimeDesc(id)
                 .stream()
-                .sorted((a, b) -> b.getAppointmentTime().compareTo(a.getAppointmentTime()))
-                .limit(5)
                 .map(appointmentMapper::toResponse)
                 .toList();
         details.setRecentAppointments(appointments);
 
-        // Oxirgi 3 ta to'lov
         List<PaymentResponse> payments = paymentRepository
-                .findByPatientId(id)
+                .findByPatientId(id, PageRequest.of(0, 3, Sort.by("createdAt").descending()))
                 .stream()
-                .limit(3)
                 .map(paymentMapper::toResponse)
                 .toList();
         details.setRecentPayments(payments);
@@ -71,25 +64,22 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public PatientResponse create(PatientRequest request) {
-        if (patientRepository.existsByPhone(request.getPhone())) {
-            throw new BadRequestException("Bu telefon raqam allaqachon mavjud");
-        }
-        Patient patient = patientMapper.toEntity(request);
-        return patientMapper.toResponse(patientRepository.save(patient));
+        if (patientRepository.existsByPhone(request.getPhone()))
+            throw new AppException(ErrorType.PATIENT_PHONE_DUPLICATE);
+
+        return patientMapper.toResponse(patientRepository.save(patientMapper.toEntity(request)));
     }
 
     @Override
     public PatientResponse update(Long id, PatientRequest request) {
-        Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Bemor topilmadi: " + id));
+        Patient patient = findById(id);
         patientMapper.updateEntity(patient, request);
         return patientMapper.toResponse(patientRepository.save(patient));
     }
 
     @Override
     public void delete(Long id) {
-        Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Bemor topilmadi: " + id));
+        Patient patient = findById(id);
         patient.setActive(false);
         patientRepository.save(patient);
     }
@@ -101,5 +91,10 @@ public class PatientServiceImpl implements PatientService {
                 .filter(Patient::isActive)
                 .map(patientMapper::toResponse)
                 .toList();
+    }
+
+    private Patient findById(Long id) {
+        return patientRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorType.PATIENT_NOT_FOUND));
     }
 }

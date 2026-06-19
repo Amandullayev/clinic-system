@@ -16,40 +16,45 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('SUPER_ADMIN')")
 public class UserController {
 
     private final UserService userService;
 
     @GetMapping
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getAll() {
         return ResponseEntity.ok(ApiResponse.ok(userService.getAll()));
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse<UserResponse>> getById(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok(userService.getById(id)));
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse<UserResponse>> create(@Valid @RequestBody UserCreateRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok("Foydalanuvchi yaratildi", userService.create(request)));
+        return ResponseEntity.ok(ApiResponse.ok("User created", userService.create(request)));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse<UserResponse>> update(
             @PathVariable Long id, @RequestBody UserUpdateRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok("Yangilandi", userService.update(id, request)));
+        return ResponseEntity.ok(ApiResponse.ok("Updated", userService.update(id, request)));
     }
 
     @PatchMapping("/{id}/toggle")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse<UserResponse>> toggle(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.ok("Holat o'zgartirildi", userService.toggleActive(id)));
+        return ResponseEntity.ok(ApiResponse.ok("Status changed", userService.toggleActive(id)));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         userService.delete(id);
-        return ResponseEntity.ok(ApiResponse.ok("O'chirildi", null));
+        return ResponseEntity.ok(ApiResponse.ok("Deleted", null));
     }
 }

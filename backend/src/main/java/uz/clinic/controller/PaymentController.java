@@ -38,12 +38,12 @@ public class PaymentController {
     @PostMapping
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<PaymentResponse>> create(@Valid @RequestBody PaymentRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok("To'lov amalga oshirildi", paymentService.create(request)));
+        return ResponseEntity.ok(ApiResponse.ok("Payment made", paymentService.create(request)));
     }
 
     @PatchMapping("/{id}/refund")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse<PaymentResponse>> refund(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.ok("To'lov qaytarildi", paymentService.refund(id)));
+        return ResponseEntity.ok(ApiResponse.ok("Refunded", paymentService.refund(id)));
     }
 }

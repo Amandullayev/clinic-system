@@ -22,19 +22,27 @@ public class ReceptionistController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse> getAll() {
-        List<UserResponse> receptionists = userRepository.findByRole(Role.RECEPTIONIST)
+        List<UserResponse> receptionists = userRepository
+                .findByRoleAndDeletedFalse(Role.RECEPTIONIST)
                 .stream()
-                .map(u -> new UserResponse(u.getId(), u.getFullName(), u.getEmail(), u.getRole(), u.isActive(), u.getCreatedAt()))
+                .map(u -> new UserResponse(
+                        u.getId(),
+                        u.getFullName(),
+                        u.getEmail(),
+                        u.getRole(),
+                        u.isActive(),
+                        u.getCreatedAt()))
                 .toList();
-        return ResponseEntity.ok(new ApiResponse(true, "Muvaffaqiyatli", receptionists));
+
+        return ResponseEntity.ok(new ApiResponse(true, "Successfully", receptionists));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse> delete(@PathVariable Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Xodim topilmadi"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
         userRepository.delete(user);
-        return ResponseEntity.ok(new ApiResponse(true, "O'chirildi", null));
+        return ResponseEntity.ok(new ApiResponse(true, "Deleted", null));
     }
 }

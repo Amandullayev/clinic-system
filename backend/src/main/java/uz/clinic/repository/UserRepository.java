@@ -15,7 +15,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findAllByRole(Role role);
 
-    List<User> findByRole(Role role);
+    // BUG #1 TUZATILDI: ReceptionistService uchun — deleted=false filtri bilan
+    List<User> findByRoleAndDeletedFalse(Role role);
 
     List<User> findAllByActiveTrue();
+
+    List<User> findAllByDeletedFalse();
+
+    // BUG #6 TUZATILDI: ID bo'yicha qidirish — deleted foydalanuvchi qaytmasin
+    Optional<User> findByIdAndDeletedFalse(Long id);
 }

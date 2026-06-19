@@ -48,6 +48,19 @@ public class Patient {
     @Column(nullable = false)
     private boolean active = true;
 
+    // YANGI: bemorning no-show hisobi.
+    // Har safar NO_SHOW belgilanganda +1 qo'shiladi.
+    // Admin/Receptionist buni ko'rib, kerak bo'lsa online booking'ni cheklaydi.
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer noShowCount = 0;
+
+    // YANGI: online booking bloklanganmi.
+    // noShowCount 3 dan oshsa → true → bemor faqat klinikada (receptionist orqali) yozila oladi.
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean onlineBookingBlocked = false;
+
     @OneToOne
     @JoinColumn(name = "user_id", unique = true)
     private User user;

@@ -27,6 +27,6 @@ public class ClinicSettingsController {
     public ResponseEntity<ApiResponse<ClinicSettingsResponse>> update(
             @RequestBody ClinicSettingsRequest request) {
         return ResponseEntity.ok(ApiResponse.ok(
-                "Sozlamalar saqlandi", clinicSettingsService.update(request)));
+                "Settings saved", clinicSettingsService.update(request)));
     }
 }

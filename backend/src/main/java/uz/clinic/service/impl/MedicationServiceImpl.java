@@ -1,12 +1,12 @@
 package uz.clinic.service.impl;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uz.clinic.dto.request.MedicationRequest;
 import uz.clinic.dto.response.MedicationResponse;
 import uz.clinic.entity.Medication;
-import uz.clinic.exception.ResourceNotFoundException;
+import uz.clinic.enums.errors.ErrorType;
+import uz.clinic.exception.AppException;
 import uz.clinic.mapper.MedicationMapper;
 import uz.clinic.repository.MedicationRepository;
 import uz.clinic.service.MedicationService;
@@ -38,9 +38,7 @@ public class MedicationServiceImpl implements MedicationService {
 
     @Override
     public MedicationResponse getById(Long id) {
-        Medication medication = medicationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Dori topilmadi: " + id));
-        return medicationMapper.toResponse(medication);
+        return medicationMapper.toResponse(findById(id));
     }
 
     @Override
@@ -55,17 +53,20 @@ public class MedicationServiceImpl implements MedicationService {
 
     @Override
     public MedicationResponse update(Long id, MedicationRequest request) {
-        Medication medication = medicationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Dori topilmadi: " + id));
+        Medication medication = findById(id);
         medicationMapper.updateEntity(medication, request);
         return medicationMapper.toResponse(medicationRepository.save(medication));
     }
 
     @Override
     public void delete(Long id) {
-        Medication medication = medicationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Dori topilmadi: " + id));
+        Medication medication = findById(id);
         medication.setActive(false);
         medicationRepository.save(medication);
+    }
+
+    private Medication findById(Long id) {
+        return medicationRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorType.MEDICATION_NOT_FOUND));
     }
 }

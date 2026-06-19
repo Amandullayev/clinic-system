@@ -18,8 +18,13 @@ public class AppointmentMapper {
         response.setNotes(appointment.getNotes());
         response.setDiagnosis(appointment.getDiagnosis());
         response.setPrescription(appointment.getPrescription());
-        response.setCreatedAt(appointment.getCreatedAt());
 
+        // YANGI maydonlar
+        response.setConfirmedAt(appointment.getConfirmedAt());
+        response.setArrivedAt(appointment.getArrivedAt());
+        response.setQueueNumber(appointment.getQueueNumber());
+
+        response.setCreatedAt(appointment.getCreatedAt());
         return response;
     }
 }

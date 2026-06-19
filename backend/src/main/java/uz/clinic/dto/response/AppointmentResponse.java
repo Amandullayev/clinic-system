@@ -17,5 +17,13 @@ public class AppointmentResponse {
     private String notes;
     private String diagnosis;
     private String prescription;
+
+    // YANGI: tasdiqlash va kelish vaqtlari
+    private LocalDateTime confirmedAt;
+    private LocalDateTime arrivedAt;
+
+    // YANGI: navbat raqami
+    private Integer queueNumber;
+
     private LocalDateTime createdAt;
 }

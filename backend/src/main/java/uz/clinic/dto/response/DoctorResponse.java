@@ -16,10 +16,11 @@ public class DoctorResponse {
     private String phone;
     private DoctorStatus status;
     private Double rating;
-    private List<String> workingDays = new ArrayList<>();
-    private String workStartTime;
-    private String workEndTime;
     private String licenseNumber;
     private Integer experienceYears;
     private boolean active;
+
+    // O'ZGARTIRILDI: eski workingDays / workStartTime / workEndTime o'rniga
+    // har bir kun uchun alohida jadval ro'yxati.
+    private List<DoctorScheduleResponse> schedules = new ArrayList<>();
 }

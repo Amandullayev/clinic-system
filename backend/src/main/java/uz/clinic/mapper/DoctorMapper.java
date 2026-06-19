@@ -2,7 +2,12 @@ package uz.clinic.mapper;
 
 import org.springframework.stereotype.Component;
 import uz.clinic.dto.response.DoctorResponse;
+import uz.clinic.dto.response.DoctorScheduleResponse;
 import uz.clinic.entity.Doctor;
+import uz.clinic.entity.DoctorSchedule;
+
+import java.util.Comparator;
+import java.util.List;
 
 @Component
 public class DoctorMapper {
@@ -19,9 +24,23 @@ public class DoctorMapper {
         response.setActive(doctor.isActive());
         response.setStatus(doctor.getStatus());
         response.setRating(doctor.getRating());
-        response.setWorkingDays(doctor.getWorkingDays());
-        response.setWorkStartTime(doctor.getWorkStartTime());
-        response.setWorkEndTime(doctor.getWorkEndTime());
+
+        // O'ZGARTIRILDI: schedules ro'yxati hafta kuni bo'yicha tartiblanib qaytariladi
+        response.setSchedules(toScheduleResponses(doctor.getSchedules()));
+
         return response;
+    }
+
+    private List<DoctorScheduleResponse> toScheduleResponses(List<DoctorSchedule> schedules) {
+        return schedules.stream()
+                .sorted(Comparator.comparingInt(s -> s.getDayOfWeek().getValue()))
+                .map(s -> {
+                    DoctorScheduleResponse dto = new DoctorScheduleResponse();
+                    dto.setDayOfWeek(s.getDayOfWeek());
+                    dto.setStartTime(s.getStartTime());
+                    dto.setEndTime(s.getEndTime());
+                    return dto;
+                })
+                .toList();
     }
 }

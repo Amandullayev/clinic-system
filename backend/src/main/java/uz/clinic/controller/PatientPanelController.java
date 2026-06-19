@@ -20,6 +20,7 @@ import java.util.List;
 public class PatientPanelController {
 
     private final PatientPanelService patientPanelService;
+
     @GetMapping("/my-appointments")
     public ResponseEntity<ApiResponse<List<AppointmentResponse>>> getMyAppointments(
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -32,7 +33,7 @@ public class PatientPanelController {
             @RequestBody AppointmentRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(ApiResponse.ok(
-                "Uchrashuv band qilindi",
+                "Navbat olindi. Emailingizni tekshiring — tasdiqlash havolasi yuborildi.",
                 patientPanelService.bookAppointment(request, userDetails.getUsername())));
     }
 
@@ -41,7 +42,7 @@ public class PatientPanelController {
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
         patientPanelService.cancelAppointment(id, userDetails.getUsername());
-        return ResponseEntity.ok(ApiResponse.ok("Uchrashuv bekor qilindi", null));
+        return ResponseEntity.ok(ApiResponse.ok("Navbat bekor qilindi", null));
     }
 
     @GetMapping("/doctors/{doctorId}/available-slots")
@@ -50,5 +51,26 @@ public class PatientPanelController {
             @RequestParam String date) {
         return ResponseEntity.ok(ApiResponse.ok(
                 patientPanelService.getAvailableSlots(doctorId, date)));
+    }
+
+    // YANGI: email havolasi orqali tasdiqlash (token query param)
+    // Frontend: /confirm-appointment?token=xxx → bu endpointga keladi
+    @PostMapping("/appointments/confirm")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<ApiResponse<AppointmentResponse>> confirmByToken(
+            @RequestParam String token) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                "Navbat tasdiqlandi!",
+                patientPanelService.confirmByToken(token)));
+    }
+
+    // YANGI: email havolasi orqali bekor qilish
+    // Frontend: /cancel-appointment?token=xxx → bu endpointga keladi
+    @PostMapping("/appointments/cancel-by-token")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<ApiResponse<Void>> cancelByToken(
+            @RequestParam String token) {
+        patientPanelService.cancelByToken(token);
+        return ResponseEntity.ok(ApiResponse.ok("Navbat bekor qilindi", null));
     }
 }
